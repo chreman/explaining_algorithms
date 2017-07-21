@@ -11,3 +11,5 @@ Explainability of classifications.
 * [German Credit Scoring](https://onlinecourses.science.psu.edu/stat857/node/215)
 
 ## Modelsources
+
+* [InceptionV3 via Keras](https://keras.io/applications/#inceptionv3), [paper](https://arxiv.org/abs/1512.00567)
