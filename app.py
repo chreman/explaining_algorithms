@@ -13,6 +13,9 @@ from keras.applications import inception_v3 as inc_net
 from creditscoring import CSModel
 from petimages import NNModel
 
+import matplotlib
+matplotlib.use('Agg')
+
 # set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("applogger")
