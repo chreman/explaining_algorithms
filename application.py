@@ -39,19 +39,19 @@ logger.info("Completed NNModel preprocessing.")
 nnmodel.create_model_explainer()
 
 
-@app.route('/')
+@application.route('/')
 def main():
     return redirect('/index')
 
 
-@app.route("/index")
+@application.route("/index")
 def index():
     return render_template(
         "index.html"
     )
 
 
-@app.route("/creditscoring")
+@application.route("/creditscoring")
 def render_creditscoring():
     logger.info("Creating random credit score examples.")
     randoms = [np.random.randint(0, csmodel.test.shape[0]) for i in range(4)]
@@ -77,7 +77,7 @@ def render_creditscoring():
     )
 
 
-@app.route("/petimages")
+@application.route("/petimages")
 def render_petimages():
     logger.info("Creating random petimage examples.")
     randoms = [np.random.randint(0, len(nnmodel.images)) for i in range(3)]
