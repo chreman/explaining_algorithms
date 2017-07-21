@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div style="font-size:10px;">
+  {{ table|safe }}
+  </div>
+  <!-- <form method=post action="">
+  <table>
+    {% for field in form %}
+      <tr>
+      <td>{{ field.name }}</td><td>{{ field }}</td>
+      <td>{{ field.label }}</td>
+      </tr>
+    {% endfor %}
+  </table> -->
+  <!-- <p><input type=submit value=Compute></form></p> -->
+  <!-- <p>
+  {% if result != None %}
+  <img src="{{ result }}" width="500">
+  {% endif %}
+  </p> -->
+  <div>
+    {% for random_exp in random_exps %}
+      {{ random_exp|safe }}
+    {% endfor %}
+  </div>
+{% endblock %}

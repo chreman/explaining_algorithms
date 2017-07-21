@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block body %}
+  <!-- <form method=post action="">
+  <table>
+    {% for field in form %}
+      <tr>
+      <td>{{ field.name }}</td><td>{{ field }}</td>
+      <td>{{ field.label }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+  <p><input type=submit value=Compute></form></p>
+  <p>
+  {% if result != None %}
+  <img src="{{ result }}" width="500">
+  {% endif %}
+  </p> -->
+  <div>
+    <p>
+      Please be patient, creating an explanation for neural networks can take up to 5 minutes.
+    </p>
+    {% for random_exp, title_text in random_exps %}
+      <h4>{{ title_text }}</h4>
+      {{ random_exp|safe }}
+    {% endfor %}
+  </div>
+{% endblock %}

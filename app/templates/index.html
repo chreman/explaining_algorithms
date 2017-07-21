@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class="row">
+    <div class="col-lg-5">
+      <p>Explain purpose, data and link source code.</p>
+      <p>Go into details of what users can do.</p>
+      <p>There are currently following examples online:</p>
+     <ul>
+       <li><a href="creditscoring">Classification with Credit Scoring Data</a></li>
+       <li><a href="petimages">Neural Networks with Pet Images</a></li>
+     </ul>
+   </div>
+  </div>
+  {{ script | safe }}
+{% endblock %}
