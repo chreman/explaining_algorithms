@@ -1,20 +1,18 @@
 """
 
 """
-from __future__ import print_function
 
 import sys
 import logging
 from flask import Flask, render_template, redirect
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
 from keras.applications import inception_v3 as inc_net
 
 from creditscoring import CSModel
 from petimages import NNModel
-
-import matplotlib
-matplotlib.use('Agg')
 
 # set up logging
 logging.basicConfig(level=logging.INFO)

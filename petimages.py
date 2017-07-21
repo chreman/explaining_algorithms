@@ -5,6 +5,8 @@ from keras.applications import inception_v3 as inc_net
 from keras.preprocessing import image
 from keras.applications.imagenet_utils import decode_predictions
 from skimage.io import imread
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from scipy import misc
 from lime.lime_image import LimeImageExplainer
