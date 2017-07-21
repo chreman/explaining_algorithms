@@ -67,7 +67,7 @@ def render_creditscoring():
             true_labels.append("Not Credit Worthy")
         else:
             true_labels.append("Credit Worthy")
-    df["True Labels"] = true_labels
+    df["True Label"] = true_labels
     table = df.to_html(classes="table table-striped .table-condensed")
     logger.info("Rendering random credit score examples.")
     return render_template(
@@ -80,7 +80,7 @@ def render_creditscoring():
 @application.route("/petimages")
 def render_petimages():
     logger.info("Creating random petimage examples.")
-    randoms = [np.random.randint(0, len(nnmodel.images)) for i in range(3)]
+    randoms = [np.random.randint(0, len(nnmodel.images)) for i in range(1)]
     random_exps = []
     for r in randoms:
         random_exps.append(nnmodel.get_explanation(r))
