@@ -24,7 +24,7 @@ sh_out.setFormatter(formatter)
 logger.addHandler(sh_out)
 
 logger.info("Creating credit score model.")
-app = Flask('explain_algorithms')
+application = Flask('explain_algorithms')
 csmodel = CSModel(logger=logger, datapath="data/creditscoring")
 csmodel.preprocess()
 csmodel.create_model()
@@ -92,4 +92,4 @@ def render_petimages():
 
 
 if __name__ == '__main__':
-    app.run(port=33507, debug=True)
+    application.run(debug=True)
