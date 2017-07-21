@@ -1,4 +1,5 @@
 scikit-learn
+scikit-image
 lime
 pandas
 flask
@@ -6,5 +7,4 @@ gunicorn
 scipy
 tensorflow
 keras
-scikit-images
 h5py
