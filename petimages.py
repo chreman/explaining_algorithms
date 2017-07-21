@@ -52,10 +52,10 @@ class NNModel(object):
     def load_raw_data(self):
         self.image_files = os.listdir(os.path.join(self.datapath,
                                                    "images"))
-        self.trimap_files = os.listdir(os.path.join(self.datapath,
-                                                    "annotations", "trimaps"))
-        self.xml_files = os.listdir(os.path.join(self.datapath,
-                                                 "annotations", "xmls"))
+        # self.trimap_files = os.listdir(os.path.join(self.datapath,
+        #                                             "annotations", "trimaps"))
+        # self.xml_files = os.listdir(os.path.join(self.datapath,
+        #                                          "annotations", "xmls"))
 
     def preprocess(self):
         self.load_raw_data()
