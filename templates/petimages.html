@@ -1,5 +1,12 @@
 {% extends "layout.html" %}
 {% block body %}
+  <div>
+    <p>In this example an Google InceptionV3 model (provided by Keras) is applied to images of cats or dogs.
+      LIME highlights the parts of the image (also called features or superpixels) which contribute positively (green) or negatively (red) to the probability of the label.
+    </p>
+    <p>Only a small subset of the original data is used here for demonstration purposes, please refer to the original dataset and the paper <a href="http://www.robots.ox.ac.uk/~vgg/publications/2012/parkhi12a/" target="_blank">here</a>.
+    </p>
+  </div>
   <!-- <form method=post action="">
   <table>
     {% for field in form %}
