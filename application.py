@@ -10,6 +10,7 @@ import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 from keras.applications import inception_v3 as inc_net
+from keras.applications import resnet50
 
 from creditscoring import CSModel
 from petimages import NNModel
@@ -31,7 +32,8 @@ csmodel.create_model()
 csmodel.create_model_explainer()
 
 logger.info("Creating neural net image model.")
-inet_model = inc_net.InceptionV3()
+# inet_model = inc_net.InceptionV3()
+inet_model = resnet50.ResNet50()
 nnmodel = NNModel(inet_model, logger=logger,
                   datapath="data/oxfordiiipets")
 nnmodel.preprocess()
@@ -80,7 +82,7 @@ def render_creditscoring():
 @application.route("/petimages")
 def render_petimages():
     logger.info("Creating random petimage examples.")
-    randoms = [np.random.randint(0, len(nnmodel.images)) for i in range(1)]
+    randoms = [np.random.randint(0, len(nnmodel.images)) for i in range(3)]
     random_exps = []
     for r in randoms:
         random_exps.append(nnmodel.get_explanation(r))

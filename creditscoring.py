@@ -61,7 +61,7 @@ class CSModel(object):
         self.labels_train = labels_train.as_matrix().reshape(-1, 1)
         self.labels_test = labels_test.as_matrix().reshape(-1, 1)
         self.classifier = RandomForestClassifier(n_estimators=100)
-        self.classifier.fit(self.train, self.labels_train)
+        self.classifier.fit(self.train, self.labels_train.ravel())
 
     def create_model_explainer(self):
         self.explainer = LimeTabularExplainer(
