@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div>
+    <p>In this example a scikit-learn AdaBoost classifier is applied to a dataset of toxic and non-toxic texts from wikipedia editor comments.
+    LIME explains the words most contributing variables to the toxicity of a comment.
+    </p>
+    <p>The dataset is the Wikipedia Detox set which can be found <a href="https://meta.wikimedia.org/wiki/Research:Detox/Data_Release" target="_blank">here</a>.
+    </p>
+  </div>
+  <div style="font-size:10px;">
+  {{ table|safe }}
+  </div>
+  <!-- <form method=post action="">
+  <table>
+    {% for field in form %}
+      <tr>
+      <td>{{ field.name }}</td><td>{{ field }}</td>
+      <td>{{ field.label }}</td>
+      </tr>
+    {% endfor %}
+  </table> -->
+  <!-- <p><input type=submit value=Compute></form></p> -->
+  <!-- <p>
+  {% if result != None %}
+  <img src="{{ result }}" width="500">
+  {% endif %}
+  </p> -->
+  <div>
+    {% for random_exp in random_exps %}
+      {{ random_exp|safe }}
+      </br>
+      </br>
+    {% endfor %}
+  </div>
+{% endblock %}

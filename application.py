@@ -14,6 +14,8 @@ from keras.applications import resnet50
 
 from creditscoring import CSModel
 from petimages import NNModel
+from detox import TextModel
+
 
 # set up logging
 logging.basicConfig(level=logging.INFO)
@@ -24,22 +26,28 @@ formatter = logging.Formatter('[%(asctime)s] [%(name)s] '
 sh_out.setFormatter(formatter)
 logger.addHandler(sh_out)
 
-logger.info("Creating credit score model.")
 application = Flask('explain_algorithms')
+
+logger.info("Creating credit score model.")
 csmodel = CSModel(logger=logger, datapath="data/creditscoring")
 csmodel.preprocess()
 csmodel.create_model()
 csmodel.create_model_explainer()
 
-logger.info("Creating neural net image model.")
-# inet_model = inc_net.InceptionV3()
-inet_model = resnet50.ResNet50()
-nnmodel = NNModel(inet_model, logger=logger,
-                  datapath="data/oxfordiiipets")
-nnmodel.preprocess()
-logger.info("Completed NNModel preprocessing.")
-nnmodel.create_model_explainer()
+# logger.info("Creating neural net image model.")
+# inet_model = resnet50.ResNet50()
+# nnmodel = NNModel(inet_model, logger=logger,
+#                   datapath="data/oxfordiiipets")
+# nnmodel.preprocess()
+# logger.info("Completed NNModel preprocessing.")
+# nnmodel.create_model_explainer()
 
+
+logger.info("Creating text classification model.")
+tmodel = TextModel(logger=logger, datapath="data/WMTalk/toxicity/")
+tmodel.preprocess()
+tmodel.create_model()
+tmodel.create_model_explainer()
 
 @application.route('/')
 def main():
@@ -92,6 +100,20 @@ def render_petimages():
         random_exps=random_exps
     )
 
+@application.route("/textdetox")
+def render_textdetox():
+    logger.info("Creating random text examples.")
+    randoms = [np.random.randint(0, len(tmodel.toxic_labels)) for i in range(3)]
+    random_exps = []
+    for r in randoms:
+        idx = tmodel.non_toxic_labels[r]
+        random_exps.append(tmodel.get_explanation(idx))
+        idx = tmodel.toxic_labels[r]
+        random_exps.append(tmodel.get_explanation(idx))
+    return render_template(
+        'textdetox.html',
+        random_exps=random_exps
+    )
 
 if __name__ == '__main__':
     application.run(debug=False)
