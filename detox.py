@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.model_selection import ShuffleSplit
 from lime.lime_text import LimeTextExplainer
 from sklearn.pipeline import make_pipeline
@@ -45,10 +45,10 @@ class TextModel(object):
         self.non_toxic_labels = [i for i, l in enumerate(self.labels) if l == 0]
 
     def create_model(self):
-        abc = AdaBoostClassifier()
-        abc.fit(self.vectors[self.train_index],
-                self.labels[self.train_index])
-        self.pipeline = make_pipeline(self.vectorizer, abc)
+        classifier = RandomForestClassifier()
+        classifier.fit(self.vectors[self.train_index],
+                       self.labels[self.train_index])
+        self.pipeline = make_pipeline(self.vectorizer, classifier)
 
     def create_model_explainer(self):
         self.explainer = LimeTextExplainer(class_names=self.class_names)
