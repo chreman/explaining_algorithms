@@ -1,22 +1,36 @@
 import os
+import pickle
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import ShuffleSplit
 from lime.lime_text import LimeTextExplainer
 from sklearn.pipeline import make_pipeline
-
-from nltk.corpus import stopwords
-stops = stopwords.words('english')
 
 
 class TextModel(object):
 
     def __init__(self, logger,
-                 datapath="/home/chris/data/WMTalk/toxicity/"):
+                 datapath="/home/chris/data/WMTalk/toxicity/",
+                 modelpath="data/tmodel.pkl"):
         super(TextModel, self).__init__()
         self.datapath = datapath
-        self.stops = stops
+        self.modelpath = modelpath
+        self.stops = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you',
+                      'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his',
+                      'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself',
+                      'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which',
+                      'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are',
+                      'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having',
+                      'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if',
+                      'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with',
+                      'about', 'against', 'between', 'into', 'through', 'during', 'before',
+                      'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out',
+                      'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once',
+                      'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both',
+                      'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor',
+                      'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't',
+                      'can', 'will', 'just', 'don', 'should', 'now']
         self.class_names = ['non_toxic', 'toxic']
 
     def load_raw_data(self):
@@ -45,9 +59,8 @@ class TextModel(object):
         self.non_toxic_labels = [i for i, l in enumerate(self.labels) if l == 0]
 
     def create_model(self):
-        classifier = RandomForestClassifier()
-        classifier.fit(self.vectors[self.train_index],
-                       self.labels[self.train_index])
+        with open(self.modelpath, "rb") as infile:
+            classifier = pickle.load(infile)
         self.pipeline = make_pipeline(self.vectorizer, classifier)
 
     def create_model_explainer(self):
