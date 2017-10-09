@@ -90,18 +90,18 @@ def render_creditscoring():
     )
 
 
-# @application.route("/petimages")
-# def render_petimages():
-#     logger.info("Creating random petimage examples.")
-#     randoms = [np.random.randint(0, len(nnmodel.images)) for i in range(3)]
-#     random_exps = []
-#     for r in randoms:
-#         random_exps.append(nnmodel.get_explanation(r))
-#     logger.info("Rendering petimage examples.")
-#     return render_template(
-#         "petimages.html",
-#         random_exps=random_exps
-#     )
+@application.route("/petimages")
+def render_petimages():
+    logger.info("Creating random petimage examples.")
+    randoms = [np.random.randint(0, len(nnmodel.images)) for i in range(3)]
+    random_exps = []
+    for r in randoms:
+        random_exps.append(nnmodel.get_explanation(r))
+    logger.info("Rendering petimage examples.")
+    return render_template(
+        "petimages.html",
+        random_exps=random_exps
+    )
 
 
 @application.route("/textdetox")
