@@ -4,7 +4,7 @@
 
 import sys
 import logging
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template, redirect, url_for, request
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -64,7 +64,7 @@ def index():
     )
 
 
-@application.route("/creditscoring")
+@application.route("/creditscoring", methods=['GET', 'POST'])
 def render_creditscoring():
     logger.info("Creating random credit score examples.")
     randoms = [np.random.randint(0, csmodel.test.shape[0]) for i in range(4)]
@@ -76,36 +76,47 @@ def render_creditscoring():
     for r in randoms:
         random_exp, true_label = csmodel.get_explanation(r)
         random_exps.append(random_exp)
-        if true_label == 0:
+        if true_label == 1:
             true_labels.append("Not Credit Worthy")
         else:
             true_labels.append("Credit Worthy")
     df["True Label"] = true_labels
     table = df.to_html(classes="table table-striped .table-condensed")
-    form_content = csmodel.get_form_content()
-    inputs = {}
-    for i, fn in enumerate(csmodel.feature_names):
-        if i in csmodel.categorical_feature_indices:
-            custom_input = request.form.get(fn, csmodel.categorical_names.get(i)[0])
-            inputs[fn] = csmodel.encoders[i].transform([custom_input])
-        else:
-            custom_input = request.form.get(fn, np.array([0]))
-            inputs[fn] = custom_input
-    print(inputs)
-    custom_df = pd.DataFrame.from_dict(inputs, orient="index").T
-    custom_table = custom_df.to_html(classes="table table-striped .table-condensed")
-    print(custom_df)
-    custom_exp = csmodel.get_custom_explanation(custom_df.iloc[0].as_matrix())
     logger.info("Rendering random credit score examples.")
     return render_template(
         "creditscoring.html",
         table=table,
-        random_exps=random_exps,
-        forms=form_content,
-        custom_table=custom_table,
-        custom_exp=custom_exp
+        random_exps=random_exps
     )
 
+@application.route("/creditscoring_input", methods=['GET', 'POST'])
+def render_creditscoring_custom():
+    form_content = csmodel.get_form_content()
+    return render_template(
+        "creditscoring_input.html",
+        forms=form_content
+    )
+
+@application.route("/creditscoring_results", methods=['GET', 'POST'])
+def render_creditscoring_results():
+    if request.method == 'POST':
+        print(request.form)
+        inputs = {}
+        for i, fn in enumerate(csmodel.feature_names):
+            if i in csmodel.categorical_feature_indices:
+                custom_input = request.form.get(fn)
+                inputs[fn] = csmodel.encoders[i].transform([custom_input])
+            else:
+                custom_input = request.form.get(fn)
+                inputs[fn] = int(custom_input)
+        custom_df = pd.DataFrame.from_dict(inputs, orient="index").T
+        custom_table = custom_df.to_html(classes="table table-striped .table-condensed")
+        custom_exp = csmodel.get_custom_explanation(custom_df.iloc[0].as_matrix())
+        return render_template(
+            "creditscoring_results.html",
+            custom_table=custom_table,
+            custom_exp=custom_exp
+        )
 
 # @application.route("/petimages")
 # def render_petimages():

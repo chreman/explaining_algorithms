@@ -10,15 +10,24 @@
       and the variable descriptions <a href="https://onlinecourses.science.psu.edu/stat857/node/222" target="_blank">here</a>.
     </p>
   </div>
-  <div style="font-size:10px;">
-  {{ table|safe }}
-  </div>
   <div>
-    <h3>
-      Random examples
-    </h3>
-    {% for random_exp in random_exps %}
-      {{ random_exp|safe }}
-    {% endfor %}
+    <table>
+      <form action="http://localhost:5000/creditscoring_results", method='POST'>
+      {% for form in forms %}
+        <tr>
+          <td>{{ form.name }}<td>
+          <td>
+          <select name="{{form.name}}" method='[GET, POST]'>
+            {% for opt in form.options %}
+              <option value={{opt}}>{{opt}}</option>
+            {% endfor %}
+          </select>
+          </td>
+        {% endfor %}
+    </table>
+    <p>
+      <input type=submit value="Computer says what?">
+    </p>
+      </form>
   </div>
 {% endblock %}

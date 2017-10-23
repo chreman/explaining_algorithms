@@ -59,7 +59,7 @@ class CSModel(object):
         self.test = test
         self.labels_train = labels_train.as_matrix().reshape(-1, 1)
         self.labels_test = labels_test.as_matrix().reshape(-1, 1)
-        self.classifier = RandomForestClassifier(n_estimators=100)
+        self.classifier = RandomForestClassifier(n_estimators=500)
         self.classifier.fit(self.train, self.labels_train.ravel())
 
     def create_model_explainer(self):
@@ -88,17 +88,17 @@ class CSModel(object):
     def get_explanation(self, i):
         exp = self.explainer.explain_instance(self.test[i],
                                               self.classifier.predict_proba,
-                                              num_features=4, top_labels=1)
+                                              num_features=3, top_labels=1)
         return (exp.as_html(show_table=True, show_all=False,
-                            show_predicted_value=True, predict_proba=True),
+                            show_predicted_value=True, predict_proba=False),
                 self.labels_test[i])
 
     def get_custom_explanation(self, instance):
         exp = self.explainer.explain_instance(instance,
                                               self.classifier.predict_proba,
-                                              num_features=4, top_labels=1)
+                                              num_features=3, top_labels=1)
         return exp.as_html(show_table=True, show_all=False,
-                           show_predicted_value=True, predict_proba=True)
+                           show_predicted_value=True, predict_proba=False)
 
     def remap_categoricals(self, df):
         for feature, categories in self.categorical_names.items():

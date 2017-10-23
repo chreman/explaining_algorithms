@@ -10,15 +10,11 @@
       and the variable descriptions <a href="https://onlinecourses.science.psu.edu/stat857/node/222" target="_blank">here</a>.
     </p>
   </div>
+  <h3>
+    Your example
+  </h3>
   <div style="font-size:10px;">
-  {{ table|safe }}
-  </div>
-  <div>
-    <h3>
-      Random examples
-    </h3>
-    {% for random_exp in random_exps %}
-      {{ random_exp|safe }}
-    {% endfor %}
+  {{ custom_table|safe }}
+  {{ custom_exp|safe }}
   </div>
 {% endblock %}
