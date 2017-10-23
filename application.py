@@ -4,16 +4,16 @@
 
 import sys
 import logging
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, request
 import numpy as np
 import pandas as pd
 import matplotlib
-from keras.applications import inception_v3 as inc_net
-from keras.applications import resnet50
+# from keras.applications import inception_v3 as inc_net
+# from keras.applications import resnet50
 
 from creditscoring import CSModel
-from petimages import NNModel
-from detox import TextModel
+# from petimages import NNModel
+# from detox import TextModel
 
 matplotlib.use('Agg')
 
@@ -35,21 +35,21 @@ csmodel.create_model()
 csmodel.create_model_explainer()
 logger.info("Created credit score model.")
 
-logger.info("Creating neural net image model.")
-inet_model = resnet50.ResNet50()
-nnmodel = NNModel(inet_model, logger=logger,
-                  datapath="data/oxfordiiipets")
-nnmodel.preprocess()
-logger.info("Completed NNModel preprocessing.")
-nnmodel.create_model_explainer()
-logger.info("Created neural net image model.")
-
-logger.info("Creating text classification model.")
-tmodel = TextModel(logger=logger, datapath="data/WMTalk/toxicity/")
-tmodel.preprocess()
-tmodel.create_model()
-tmodel.create_model_explainer()
-logger.info("Created text classification model.")
+# logger.info("Creating neural net image model.")
+# inet_model = resnet50.ResNet50()
+# nnmodel = NNModel(inet_model, logger=logger,
+#                   datapath="data/oxfordiiipets")
+# nnmodel.preprocess()
+# logger.info("Completed NNModel preprocessing.")
+# nnmodel.create_model_explainer()
+# logger.info("Created neural net image model.")
+#
+# logger.info("Creating text classification model.")
+# tmodel = TextModel(logger=logger, datapath="data/WMTalk/toxicity/")
+# tmodel.preprocess()
+# tmodel.create_model()
+# tmodel.create_model_explainer()
+# logger.info("Created text classification model.")
 
 
 @application.route('/')
@@ -82,44 +82,61 @@ def render_creditscoring():
             true_labels.append("Credit Worthy")
     df["True Label"] = true_labels
     table = df.to_html(classes="table table-striped .table-condensed")
+    form_content = csmodel.get_form_content()
+    inputs = {}
+    for i, fn in enumerate(csmodel.feature_names):
+        if i in csmodel.categorical_feature_indices:
+            custom_input = request.form.get(fn, csmodel.categorical_names.get(i)[0])
+            inputs[fn] = csmodel.encoders[i].transform([custom_input])
+        else:
+            custom_input = request.form.get(fn, np.array([0]))
+            inputs[fn] = custom_input
+    print(inputs)
+    custom_df = pd.DataFrame.from_dict(inputs, orient="index").T
+    custom_table = custom_df.to_html(classes="table table-striped .table-condensed")
+    print(custom_df)
+    custom_exp = csmodel.get_custom_explanation(custom_df.iloc[0].as_matrix())
     logger.info("Rendering random credit score examples.")
     return render_template(
         "creditscoring.html",
         table=table,
-        random_exps=random_exps
+        random_exps=random_exps,
+        forms=form_content,
+        custom_table=custom_table,
+        custom_exp=custom_exp
     )
 
 
-@application.route("/petimages")
-def render_petimages():
-    logger.info("Creating random petimage examples.")
-    randoms = [np.random.randint(0, len(nnmodel.images)) for i in range(3)]
-    random_exps = []
-    for r in randoms:
-        random_exps.append(nnmodel.get_explanation(r))
-    logger.info("Rendering petimage examples.")
-    return render_template(
-        "petimages.html",
-        random_exps=random_exps
-    )
-
-
-@application.route("/textdetox")
-def render_textdetox():
-    logger.info("Creating random text examples.")
-    randoms = [np.random.randint(0, len(tmodel.toxic_labels))
-               for i in range(3)]
-    random_exps = []
-    for r in randoms:
-        idx = tmodel.non_toxic_labels[r]
-        random_exps.append(tmodel.get_explanation(idx))
-        idx = tmodel.toxic_labels[r]
-        random_exps.append(tmodel.get_explanation(idx))
-    return render_template(
-        'textdetox.html',
-        random_exps=random_exps
-    )
+# @application.route("/petimages")
+# def render_petimages():
+#     logger.info("Creating random petimage examples.")
+#     randoms = [np.random.randint(0, len(nnmodel.images)) for i in range(3)]
+#     random_exps = []
+#     for r in randoms:
+#         random_exps.append(nnmodel.get_explanation(r))
+#     logger.info("Rendering petimage examples.")
+#     return render_template(
+#         "petimages.html",
+#         random_exps=random_exps
+#     )
+#
+#
+# @application.route("/textdetox")
+# def render_textdetox():
+#     logger.info("Creating random text examples.")
+#     randoms = [np.random.randint(0, len(tmodel.toxic_labels))
+#                for i in range(3)]
+#     random_exps = []
+#     for r in randoms:
+#         idx = tmodel.non_toxic_labels[r]
+#         random_exps.append(tmodel.get_explanation(idx))
+#         idx = tmodel.toxic_labels[r]
+#         random_exps.append(tmodel.get_explanation(idx))
+#     return render_template(
+#         'textdetox.html',
+#         random_exps=random_exps
+#     )
 
 
 if __name__ == '__main__':
-    application.run(debug=False)
+    application.run(debug=True)

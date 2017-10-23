@@ -45,12 +45,13 @@ class CSModel(object):
     def create_model(self):
         features = self.features.as_matrix()
         self.categorical_names = {}
+        self.encoders = {}
         for feature in self.categorical_feature_indices:
             le = LabelEncoder()
             le.fit(features[:, feature])
             features[:, feature] = le.transform(features[:, feature])
+            self.encoders[feature] = le
             self.categorical_names[feature] = le.classes_
-        self.ohe = OneHotEncoder(categorical_features=self.categorical_features)
         train, test, labels_train, labels_test = train_test_split(features,
                                                                   self.labels,
                                                                   train_size=0.80)
@@ -72,6 +73,18 @@ class CSModel(object):
                           discretize_continuous=True
                          )
 
+    def get_form_content(self):
+        forms = []
+        for i, fn in enumerate(self.feature_names):
+            if i in self.categorical_feature_indices:
+                forms.append({"name":fn,
+                              "options": self.categorical_names.get(i)})
+            else:
+                forms.append({"name":fn,
+                              "options": self.raw[fn].unique().tolist()})
+        return forms
+
+
     def get_explanation(self, i):
         exp = self.explainer.explain_instance(self.test[i],
                                               self.classifier.predict_proba,
@@ -79,6 +92,13 @@ class CSModel(object):
         return (exp.as_html(show_table=True, show_all=False,
                             show_predicted_value=True, predict_proba=True),
                 self.labels_test[i])
+
+    def get_custom_explanation(self, instance):
+        exp = self.explainer.explain_instance(instance,
+                                              self.classifier.predict_proba,
+                                              num_features=4, top_labels=1)
+        return exp.as_html(show_table=True, show_all=False,
+                           show_predicted_value=True, predict_proba=True)
 
     def remap_categoricals(self, df):
         for feature, categories in self.categorical_names.items():

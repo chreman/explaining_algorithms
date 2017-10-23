@@ -13,22 +13,32 @@
   <div style="font-size:10px;">
   {{ table|safe }}
   </div>
-  <!-- <form method=post action="">
-  <table>
-    {% for field in form %}
-      <tr>
-      <td>{{ field.name }}</td><td>{{ field }}</td>
-      <td>{{ field.label }}</td>
-      </tr>
-    {% endfor %}
-  </table> -->
-  <!-- <p><input type=submit value=Compute></form></p> -->
-  <!-- <p>
-  {% if result != None %}
-  <img src="{{ result }}" width="500">
-  {% endif %}
-  </p> -->
   <div>
+    <table>
+      {% for form in forms %}
+        <tr>
+          <td>{{ form.name }}<td>
+          <td>
+          <select name="{{form.name}}" method='[GET, POST]'>
+            {% for opt in form.options %}
+              <option value={{opt}}>{{opt}}</option>
+            {% endfor %}
+          </select>
+          </td>
+        {% endfor %}
+    </table>
+    <p><input type=submit action="/creditscoring" method='POST' value="Computer says what?"></form></p>
+  </div>
+  <h3>
+    Your example
+  </h3>
+  <div style="font-size:10px;">
+  {{ custom_exp|safe }}
+  </div>
+  <div>
+    <h3>
+      Random examples
+    </h3>
     {% for random_exp in random_exps %}
       {{ random_exp|safe }}
     {% endfor %}
