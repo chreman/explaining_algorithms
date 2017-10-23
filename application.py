@@ -100,18 +100,27 @@ def render_creditscoring_custom():
 @application.route("/creditscoring_results", methods=['GET', 'POST'])
 def render_creditscoring_results():
     if request.method == 'POST':
-        print(request.form)
         inputs = {}
+        table_inputs = {}
         for i, fn in enumerate(csmodel.feature_names):
             if i in csmodel.categorical_feature_indices:
-                custom_input = request.form.get(fn)
-                inputs[fn] = csmodel.encoders[i].transform([custom_input])
+                custom_input = int(request.form.get(fn))
+                table_inputs[fn] = csmodel.encoders[i].classes_[custom_input]
+                inputs[fn] = custom_input
             else:
-                custom_input = request.form.get(fn)
-                inputs[fn] = int(custom_input)
+                candidates = list(
+                                enumerate(
+                                    sorted(csmodel.raw[fn].unique().tolist()
+                                    )
+                                )
+                             )
+                custom_input = int(request.form.get(fn))
+                inputs[fn] = candidates[custom_input][1]
+                table_inputs[fn] = candidates[custom_input][1]
         custom_df = pd.DataFrame.from_dict(inputs, orient="index").T
-        custom_table = custom_df.to_html(classes="table table-striped .table-condensed")
+        custom_table_df = pd.DataFrame.from_dict(table_inputs, orient="index").T
         custom_exp = csmodel.get_custom_explanation(custom_df.iloc[0].as_matrix())
+        custom_table = custom_table_df.to_html(classes="table table-striped .table-condensed")
         return render_template(
             "creditscoring_results.html",
             custom_table=custom_table,

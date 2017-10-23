@@ -19,7 +19,7 @@
           <td>
           <select name="{{form.name}}" method='[GET, POST]'>
             {% for opt in form.options %}
-              <option value={{opt}}>{{opt}}</option>
+              <option value={{opt[0]}}>{{opt[1]}}</option>
             {% endfor %}
           </select>
           </td>

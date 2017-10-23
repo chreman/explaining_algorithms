@@ -78,10 +78,15 @@ class CSModel(object):
         for i, fn in enumerate(self.feature_names):
             if i in self.categorical_feature_indices:
                 forms.append({"name":fn,
-                              "options": self.categorical_names.get(i)})
+                              "options": list(enumerate(self.categorical_names.get(i)))})
             else:
                 forms.append({"name":fn,
-                              "options": self.raw[fn].unique().tolist()})
+                              "options": list(
+                                            enumerate(
+                                                sorted(self.raw[fn].unique().tolist()
+                                                )
+                                            )
+                                          )})
         return forms
 
 
