@@ -76,7 +76,7 @@ def render_creditscoring():
     for r in randoms:
         random_exp, true_label = csmodel.get_explanation(r)
         random_exps.append(random_exp)
-        if true_label == 1:
+        if true_label == 0:
             true_labels.append("Not Credit Worthy")
         else:
             true_labels.append("Credit Worthy")
@@ -159,4 +159,4 @@ def render_textdetox():
 
 
 if __name__ == '__main__':
-    application.run(debug=False)
+    application.run(host="0.0.0.0", debug=False)
