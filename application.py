@@ -36,7 +36,8 @@ csmodel.create_model_explainer()
 logger.info("Created credit score model.")
 
 logger.info("Creating neural net image model.")
-inet_model = resnet50.ResNet50()
+inet_model = inc_net.InceptionV3()
+# inet_model = resnet50.ResNet50()
 nnmodel = NNModel(inet_model, logger=logger,
                   datapath="data/oxfordiiipets")
 nnmodel.preprocess()

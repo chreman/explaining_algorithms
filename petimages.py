@@ -29,15 +29,15 @@ def transform_img_fn(path_list):
                 img = misc.imresize(img, 500/imx)
             imx, imy, _ = img.shape
             if imy < 500:
-                img = misc.imresize(img, 500/imy)
-            img = img[0:500, 0:500]
+                img = misc.imresize(img, 300/imy)
+            img = img[0:299, 0:299]
             img = misc.imresize(img, 225/500)
             img = img[0:224, 0:224, :3]
         if img.shape != (224, 224, 3):
             continue
         x = image.img_to_array(img)
         x = np.expand_dims(x, axis=0)
-        x = resnet50.preprocess_input(x)
+        x = inc_net.preprocess_input(x)
         out.append(x)
         valid_files.append(i)
     return np.vstack(out), valid_files
@@ -70,10 +70,7 @@ class NNModel(object):
         self.valid = [self.image_files[i] for i in valid_files]
 
     def create_model_explainer(self):
-        preds = []
-        for im in self.images:
-            preds.append(self.model.predict(im.reshape(1, 224, 224, 3)))
-        self.preds = np.vstack(preds)
+        self.preds = self.model.predict(self.images)
         self.decoded_preds = decode_predictions(self.preds, )
         self.explainer = LimeImageExplainer()
 
@@ -82,14 +79,11 @@ class NNModel(object):
         title_text = " ".join(title_text)
         num_labels = 3
         preds = self.decoded_preds[i]
-        instance = self.images[i]
-        instance = instance.astype(np.uint8)
         explanation = self.explainer.explain_instance(
-                            instance,
+                            self.images[i],
                             self.model.predict,
                             top_labels=num_labels,
-                            hide_color=0, num_samples=400,
-                            batch_size=10)
+                            hide_color=0, num_samples=200)
         fig, subplots = plt.subplots(1, num_labels)
         fig.set_figheight(3)
         fig.set_figwidth(9)
@@ -97,10 +91,10 @@ class NNModel(object):
         for exp, ax in zip(explanation.local_exp.keys(), subplots):
             temp, mask = explanation.get_image_and_mask(
                             exp,
-                            positive_only=True,
-                            num_features=10,
-                            hide_rest=True)
-            ax.imshow(mark_boundaries(temp, mask))
+                            positive_only=False,
+                            num_features=5,
+                            hide_rest=False)
+            ax.imshow(mark_boundaries(temp / 2 + 0.5, mask))
             ax.set_title(preds[j][1] + ", %.3f" % preds[j][2])
             j += 1
         plt.tight_layout()
