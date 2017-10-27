@@ -29,11 +29,11 @@ def transform_img_fn(path_list):
                 img = misc.imresize(img, 500/imx)
             imx, imy, _ = img.shape
             if imy < 500:
-                img = misc.imresize(img, 300/imy)
+                img = misc.imresize(img, 500/imy)
+            img = img[0:500, 0:500]
+            img = misc.imresize(img, 300/500)
             img = img[0:299, 0:299]
-            img = misc.imresize(img, 225/500)
-            img = img[0:224, 0:224, :3]
-        if img.shape != (224, 224, 3):
+        if img.shape != (299, 299, 3):
             continue
         x = image.img_to_array(img)
         x = np.expand_dims(x, axis=0)

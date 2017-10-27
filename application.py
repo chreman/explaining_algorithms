@@ -37,7 +37,7 @@ logger.info("Created credit score model.")
 
 logger.info("Creating neural net image model.")
 inet_model = inc_net.InceptionV3()
-# inet_model = resnet50.ResNet50()
+#inet_model = resnet50.ResNet50()
 nnmodel = NNModel(inet_model, logger=logger,
                   datapath="data/oxfordiiipets")
 nnmodel.preprocess()
@@ -98,7 +98,7 @@ def render_creditscoring_custom():
         forms=form_content
     )
 
-@application.route("/creditscoring_results", methods=['GET', 'POST'])
+@application.route("/creditscoring_results", methods=['POST'])
 def render_creditscoring_results():
     if request.method == 'POST':
         inputs = {}
@@ -131,7 +131,7 @@ def render_creditscoring_results():
 @application.route("/petimages")
 def render_petimages():
     logger.info("Creating random petimage examples.")
-    randoms = [np.random.randint(0, len(nnmodel.images)) for i in range(3)]
+    randoms = [np.random.randint(0, len(nnmodel.images)) for i in range(1)]
     random_exps = []
     for r in randoms:
         random_exps.append(nnmodel.get_explanation(r))
