@@ -3,8 +3,10 @@
 """
 
 import sys
+import os
 import logging
 from flask import Flask, render_template, redirect, url_for, request
+from werkzeug import secure_filename
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -16,6 +18,10 @@ from petimages import NNModel
 from detox import TextModel
 
 matplotlib.use('Agg')
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+if not os.path.isdir('tmp'):
+    os.mkdir('tmp')
+UPLOAD_FOLDER = 'tmp'
 
 # set up logging
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +33,7 @@ sh_out.setFormatter(formatter)
 logger.addHandler(sh_out)
 
 application = Flask('explain_algorithms')
+application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 logger.info("Creating credit score model.")
 csmodel = CSModel(logger=logger, datapath="data/creditscoring")
@@ -92,14 +99,6 @@ def render_creditscoring():
 
 @application.route("/creditscoring_input", methods=['GET', 'POST'])
 def render_creditscoring_custom():
-    form_content = csmodel.get_form_content()
-    return render_template(
-        "creditscoring_input.html",
-        forms=form_content
-    )
-
-@application.route("/creditscoring_results", methods=['POST'])
-def render_creditscoring_results():
     if request.method == 'POST':
         inputs = {}
         table_inputs = {}
@@ -118,15 +117,25 @@ def render_creditscoring_results():
                 custom_input = int(request.form.get(fn))
                 inputs[fn] = candidates[custom_input][1]
                 table_inputs[fn] = candidates[custom_input][1]
-        custom_df = pd.DataFrame.from_dict(inputs, orient="index").T
-        custom_table_df = pd.DataFrame.from_dict(table_inputs, orient="index").T
-        custom_exp = csmodel.get_custom_explanation(custom_df.iloc[0].as_matrix())
-        custom_table = custom_table_df.to_html(classes="table table-striped .table-condensed")
-        return render_template(
-            "creditscoring_results.html",
-            custom_table=custom_table,
-            custom_exp=custom_exp
-        )
+        return redirect(url_for('render_creditscoring_results',
+                                inputs, table_inputs))
+    form_content = csmodel.get_form_content()
+    return render_template(
+        "creditscoring_input.html",
+        forms=form_content
+    )
+
+@application.route("/creditscoring_results", methods=['GET'])
+def render_creditscoring_results(inputs, table_inputs):
+    custom_df = pd.DataFrame.from_dict(inputs, orient="index").T
+    custom_table_df = pd.DataFrame.from_dict(table_inputs, orient="index").T
+    custom_exp = csmodel.get_custom_explanation(custom_df.iloc[0].as_matrix())
+    custom_table = custom_table_df.to_html(classes="table table-striped .table-condensed")
+    return render_template(
+        "creditscoring_results.html",
+        custom_table=custom_table,
+        custom_exp=custom_exp
+    )
 
 
 @application.route("/petimages")
@@ -140,6 +149,48 @@ def render_petimages():
     return render_template(
         "petimages.html",
         random_exps=random_exps
+    )
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@application.route('/upload_image', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
+        return redirect(url_for('uploaded_image',
+                                filename=filename))
+    return '''
+    <!doctype html>
+    <title>Upload new File</title>
+    <h1>Upload new File</h1>
+    <form method=post enctype=multipart/form-data>
+      <p><input type=file name=file>
+         <input type=submit value=Upload>
+    </form>
+    '''
+
+@application.route('/uploaded_image/<filename>')
+def uploaded_image(filename):
+    logger.info("Creating custom image example.")
+    custom_exps = nnmodel.get_custom_explanation(filename)
+    logger.info("Rendering petimage examples.")
+    return render_template(
+        "petimages.html",
+        random_exps=[custom_exps]
     )
 
 

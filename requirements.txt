@@ -3,6 +3,7 @@ scikit-image
 lime
 pandas
 flask
+werkzeug
 gunicorn
 scipy
 tensorflow

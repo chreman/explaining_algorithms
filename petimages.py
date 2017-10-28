@@ -42,6 +42,23 @@ def transform_img_fn(path_list):
         valid_files.append(i)
     return np.vstack(out), valid_files
 
+def transform_custom_image(filename):
+    img = misc.imread(filename)
+    img = img[:, :, :3]
+    imx, imy, _ = img.shape
+    if imx < 500:
+        img = misc.imresize(img, 500/imx)
+    imx, imy, _, img.shape
+    if imy < 500:
+        img = misc.imresize(img, 500/imy)
+    img = img[0:500, 0:500]
+    img = misc.imresize(img, 300/500)
+    img = img[0:299, 0:299]
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    x = inc_net.preprocess_input(x)
+    x.reshape(1, 299, 299, 3)
+    return x
 
 class NNModel(object):
     """docstring for NNModel"""
@@ -99,3 +116,31 @@ class NNModel(object):
             j += 1
         plt.tight_layout()
         return mpld3.fig_to_html(fig), title_text
+
+    def get_custom_explanation(self, filename):
+        img = transform_custom_image(os.path.join('tmp', filename))
+        num_labels = 3
+        preds = self.model.predict(img)
+        img = img.reshape(299, 299, 3)
+        decoded_preds = decode_predictions(preds, )
+        explanation = self.explainer.explain_instance(
+                            img,
+                            self.model.predict,
+                            top_labels=num_labels,
+                            hide_color=0, num_samples=200)
+        fig, subplots = plt.subplots(1, num_labels)
+        fig.set_figheight(3)
+        fig.set_figwidth(9)
+        j = 0
+        for exp, ax in zip(explanation.local_exp.keys(), subplots):
+            temp, mask = explanation.get_image_and_mask(
+                            exp,
+                            positive_only=False,
+                            num_features=5,
+                            hide_rest=False)
+            ax.imshow(mark_boundaries(temp / 2 + 0.5, mask))
+            print(decoded_preds[0][j])
+            ax.set_title(decoded_preds[0][j][1] + ", %.3f" % decoded_preds[0][j][2])
+            j += 1
+        plt.tight_layout()
+        return mpld3.fig_to_html(fig), filename
