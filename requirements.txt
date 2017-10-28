@@ -5,7 +5,7 @@ pandas
 flask
 gunicorn
 scipy
+tensorflow
 keras
 h5py
 mpld3
-tensorflow

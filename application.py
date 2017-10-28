@@ -128,6 +128,7 @@ def render_creditscoring_results():
             custom_exp=custom_exp
         )
 
+
 @application.route("/petimages")
 def render_petimages():
     logger.info("Creating random petimage examples.")
@@ -160,4 +161,4 @@ def render_textdetox():
 
 
 if __name__ == '__main__':
-    application.run(host="0.0.0.0", debug=False)
+    application.run(host='0.0.0.0', debug=False)
