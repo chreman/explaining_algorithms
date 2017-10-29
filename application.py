@@ -99,6 +99,14 @@ def render_creditscoring():
 
 @application.route("/creditscoring_input", methods=['GET', 'POST'])
 def render_creditscoring_custom():
+    form_content = csmodel.get_form_content()
+    return render_template(
+        "creditscoring_input.html",
+        forms=form_content
+    )
+
+@application.route("/creditscoring_results", methods=['POST'])
+def render_creditscoring_results():
     if request.method == 'POST':
         inputs = {}
         table_inputs = {}
@@ -117,25 +125,15 @@ def render_creditscoring_custom():
                 custom_input = int(request.form.get(fn))
                 inputs[fn] = candidates[custom_input][1]
                 table_inputs[fn] = candidates[custom_input][1]
-        return redirect(url_for('render_creditscoring_results',
-                                inputs, table_inputs))
-    form_content = csmodel.get_form_content()
-    return render_template(
-        "creditscoring_input.html",
-        forms=form_content
-    )
-
-@application.route("/creditscoring_results", methods=['GET'])
-def render_creditscoring_results(inputs, table_inputs):
-    custom_df = pd.DataFrame.from_dict(inputs, orient="index").T
-    custom_table_df = pd.DataFrame.from_dict(table_inputs, orient="index").T
-    custom_exp = csmodel.get_custom_explanation(custom_df.iloc[0].as_matrix())
-    custom_table = custom_table_df.to_html(classes="table table-striped .table-condensed")
-    return render_template(
-        "creditscoring_results.html",
-        custom_table=custom_table,
-        custom_exp=custom_exp
-    )
+        custom_df = pd.DataFrame.from_dict(inputs, orient="index").T
+        custom_table_df = pd.DataFrame.from_dict(table_inputs, orient="index").T
+        custom_exp = csmodel.get_custom_explanation(custom_df.iloc[0].as_matrix())
+        custom_table = custom_table_df.to_html(classes="table table-striped .table-condensed")
+        return render_template(
+            "creditscoring_results.html",
+            custom_table=custom_table,
+            custom_exp=custom_exp
+)
 
 
 @application.route("/petimages")

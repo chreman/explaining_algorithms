@@ -139,7 +139,6 @@ class NNModel(object):
                             num_features=5,
                             hide_rest=False)
             ax.imshow(mark_boundaries(temp / 2 + 0.5, mask))
-            print(decoded_preds[0][j])
             ax.set_title(decoded_preds[0][j][1] + ", %.3f" % decoded_preds[0][j][2])
             j += 1
         plt.tight_layout()
